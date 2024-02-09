@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component} from 'react';
 import { Button } from './Button/Button';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
@@ -6,8 +6,13 @@ import { Searchbar } from './Searchbar/Searchbar';
 import { getAPI } from 'pixabay-api';
 import toast, { Toaster } from 'react-hot-toast';
 import css from './App.module.css';
+// import backgroundImage from 'https://i.ibb.co/QmgZz7c/background.jpg';
+
+
+
 
 export class App extends Component {
+
   state = {
     search: '',
     page: 1,
@@ -15,6 +20,8 @@ export class App extends Component {
     isLoading: false,
     isError: false,
     isEnd: false,
+    isSearchSuccessful: false,
+    
   };
 
   componentDidUpdate = async (_prevProps, prevState) => {
@@ -23,9 +30,12 @@ export class App extends Component {
     if (prevState.search !== search || prevState.page !== page) {
       await this.fetchImages(search, page);
     }
+
+    
   };
 
   fetchImages = async (search, page) => {
+    
     try {
       this.setState({ isLoading: true });
 
@@ -36,20 +46,42 @@ export class App extends Component {
       // Display an error message, if there is no match with the search
       if (hits.length === 0) {
         toast.error(
-          'Sorry, there are no images matching your search query. Please try again.'
+          'Sorry, there are no images matching your search query!',
+          {
+            duration: 5000,
+            style: {
+            background: '#333',
+            color: '#fff',}
+        }
         );
         return;
       }
 
+      if (hits.length > 0) {
+    this.setState({ isSearchSuccessful: true, isLoading: false });
+  }
+
       // Display a success message if it's the first page
       if (page === 1) {
-        toast.success(`Hooray! We found ${totalHits} images!`);
+        toast.success(`Hooray! We found ${totalHits} images!`,
+          {
+            duration: 5000,
+            style: {
+            background: '#333',
+            color: '#fff',}
+        });
       }
 
       // Display a message if page is already at the end of data (12 = per_page based on API call)
       if (page * 12 >= totalHits) {
         this.setState({ isEnd: true });
-        toast("We're sorry, but you've reached the end of search results.");
+        toast("We're sorry, but you've reached the end of search results.",
+          {
+            duration: 5000,
+            style: {
+            background: '#333',
+            color: '#fff',}
+        });
       }
 
       // Update the state with the new images
@@ -78,22 +110,47 @@ export class App extends Component {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
+  
+
   render() {
     const { images, isLoading, isError, isEnd } = this.state;
 
     return (
-      <div className={css.app}>
-        <Searchbar onSubmit={this.handleSubmit} />
-        {/* Render ImageGallery Component when there is atleast one match of images */}
-        {images.length >= 1 && <ImageGallery photos={images} />}
-
-        {/* Render Button Component when there is atleast a second page or more and it's not the end of page */}
-        {images.length >= 2 && !isEnd && <Button onClick={this.handleClick} />}
-        {isLoading && <Loader />}
-        {isError &&
-          toast.error('Oops, something went wrong! Reload this page!')}
-        <Toaster position="top-center" reverseOrder={false} />
+    <><div className={css.wrapper}>
+        <h1>Image Finder</h1>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
+        <div><span className={css.dot}></span></div>
       </div>
+        <div className={css.app}>
+          <Searchbar onSubmit={this.handleSubmit} />
+          {/* Render ImageGallery Component when there is atleast one match of images */}
+          {images.length >= 1 && <ImageGallery photos={images} />}
+
+          {/* When search is successful the background image will be none */}
+          {!this.state.isSearchSuccessful && (
+            <div className="background-image"></div> // Place your background image styles here
+          )}
+          {/* Render Button Component when there is atleast a second page or more and it's not the end of page */}
+          {images.length >= 2 && !isEnd && <Button onClick={this.handleClick} />}
+          {isLoading && <Loader />}
+          {isError &&
+            toast.error('Oops, something went wrong! Reload this page!')}
+          <Toaster position="bottom-right" reverseOrder={false} />
+        </div></>
+      
     );
   }
 }

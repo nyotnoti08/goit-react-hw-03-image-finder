@@ -1,3 +1,11 @@
+@use postcss-color-function;
+@use postcss-nested;
+@import url('https://fonts.googleapis.com/css?family=Raleway:400,700,900');
+
+body{
+  font-family: 'Raleway', sans-serif;
+}
+
 .searchBar {
   top: 0;
   left: 0;
